@@ -1,28 +1,39 @@
 import { useState, useEffect } from 'react';
 
+// ✅ Variables de entorno desde .env
+const URL_POKEDEX = process.env.REACT_APP_API_POKEDEX;
+const URL_HISTORIAL = process.env.REACT_APP_API_HISTORIAL;
+
 function App() {
   const [nombre, setNombre] = useState('');
   const [pokemon, setPokemon] = useState(null);
   const [historial, setHistorial] = useState([]);
 
   const buscar = () => {
-    fetch(`http://localhost:3000/pokemon/${nombre}`)
+    fetch(`${URL_POKEDEX}/pokemon/${nombre}`)
       .then(res => res.json())
       .then(data => {
         setPokemon(data);
-        fetch('http://localhost:3001/historial', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nombre: data.nombre })
-        });
+
+        // Guardar en historial si existe el Pokémon
+        if (data.nombre) {
+          fetch(`${URL_HISTORIAL}/historial`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nombre: data.nombre })
+          });
+        }
+
         setNombre('');
-      });
+      })
+      .catch(err => console.error('Error al consultar pokedex:', err));
   };
 
   useEffect(() => {
-    fetch('http://localhost:3001/historial')
+    fetch(`${URL_HISTORIAL}/historial`)
       .then(res => res.json())
-      .then(setHistorial);
+      .then(setHistorial)
+      .catch(err => console.error('Error al obtener historial:', err));
   }, [pokemon]);
 
   return (

@@ -1,23 +1,38 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
-
-# testing
-/coverage
-
-# production
-/build
-
-# misc
-.DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
+# Node.js
+node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+package-lock.json
+
+# SQLite (base de datos local que no se debe subir)
+*.db
+
+# Docker
+*.env
+.env.*
+Dockerfile
+docker-compose.yml
+
+# Build de React
+/build
+/dist
+*.tgz
+
+# VSCode / IDEs
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+/coverage
+
+# PnP
+.pnp/
+.pnp.js
+
+# GitHub Actions cache
+.github/workflows/*.log
