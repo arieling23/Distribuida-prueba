@@ -1,0 +1,57 @@
+name: Deploy pokeapi distribuido sin docker-compose
+
+on:
+  push:
+    branches: [master]  # o main, según tu rama principal
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v2
+
+      - name: Login a Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      # Backend Pokedex
+      - name: Build & Push backend-pokedex
+        run: |
+          cd backend-pokedex
+          docker build -t arieling/backend-pokedex .
+          docker push arieling/backend-pokedex
+
+      # Backend Historial
+      - name: Build & Push backend-historial
+        run: |
+          cd ../backend-historial
+          docker build -t arieling/backend-historial .
+          docker push arieling/backend-historial
+
+      # Frontend React
+      - name: Build & Push poke-frontend
+        run: |
+          cd ../poke-frontend
+          docker build -t arieling/poke-frontend .
+          docker push arieling/poke-frontend
+
+      # Despliegue remoto a EC2
+      - name: Deploy en EC2
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            docker pull arieling/backend-pokedex
+            docker pull arieling/backend-historial
+            docker pull arieling/poke-frontend
+
+            docker stop pokedex || true && docker rm pokedex || true
+            docker stop historial || true && docker rm historial || true
+            docker stop frontend || true && docker rm frontend || true
+
+            docker run -d -p 3000:3000 --name pokedex arieling/backend-pokedex
+            docker run -d -p 3001:3001 --name historial arieling/backend-historial
+            docker run -d -p 80:3000    --name frontend arieling/poke-frontend
