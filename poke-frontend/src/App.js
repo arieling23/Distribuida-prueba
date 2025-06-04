@@ -27,7 +27,7 @@ function App() {
 
   return (
     <div>
-      <h1>Pokedex Distribuida</h1>
+      <h1>Pokedex Distribuida Prueba</h1>
       <input value={nombre} onChange={e => setNombre(e.target.value)} />
       <button onClick={buscar}>Buscar</button>
 
